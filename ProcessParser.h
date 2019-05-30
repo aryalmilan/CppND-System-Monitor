@@ -1,3 +1,4 @@
+#pragma once
 #include <algorithm>
 #include <iostream>
 #include <math.h>
@@ -44,3 +45,13 @@ private:
 };
 
 // TODO: Define all of the above functions below:
+
+string ProcessParser::getCmd(string pid){
+    string path=Path::basePath()+pid+Path::cmdPath();
+    std::ifstream stream;
+    Util::getStream(path,stream);
+    string line;
+    getline(stream,line);
+    stream.close();
+    return line;
+}
