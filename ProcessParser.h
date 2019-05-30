@@ -55,3 +55,25 @@ string ProcessParser::getCmd(string pid){
     stream.close();
     return line;
 }
+
+
+//VmSize can be obtained from /proc/pid/status
+std::string ProcessParser::getVmSize(string pid){
+    string path=Path::basePath()+pid+Path::statusPath();
+    std::ifstream stream;
+    Util::getStream(path,stream);
+    string line;
+    string VmData;
+    string name="VmData:"
+    while(getline(stream,line)){
+        std::istringstream fline(line);
+        string id;
+        fline>>id;
+        if (id.compare(0,name.size(),name)==0){
+            fline>>VmData;
+            stream.close();
+            float result=(stof(VmData)/float(1024))
+            return to_string(result);
+        }
+    }
+}
