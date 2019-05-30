@@ -1,3 +1,4 @@
+#pragma once
 #include <string>
 #include <iostream>
 #include <vector>
@@ -25,7 +26,7 @@ public:
     Initial data for individual cores is set
     System data is set
     */
-        this->getOtherCores(getNumberOfCores());
+        this->getOtherCores(ProcessParser::getNumberOfCores());
         this->setLastCpuMeasures();
         this->setAttributes();
         this-> OSname = ProcessParser::getOSName();
