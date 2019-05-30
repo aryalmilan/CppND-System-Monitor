@@ -100,3 +100,14 @@ std::string ProcessParser::getCpuPercent(string pid){
     return to_string(result);
 }
 
+std::string ProcessParser::getProcUpTime(string pid){
+    string path=Path::basePath()+pid+"/"+Path::statPath();
+    std::ifstream stream;
+    Util::getStream(path,stream);
+    string line;
+    std::istringstream fline(line);
+    std::istream_iterator<string> start(fline), end;
+    std::vector<string> values(start,end);
+    stream.close();
+    return to_string(float(stof(values[13])/sysconf(_SC_CLK_TCK)));
+}
