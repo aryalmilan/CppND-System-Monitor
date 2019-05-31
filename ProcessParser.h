@@ -66,19 +66,19 @@ std::string ProcessParser::getVmSize(string pid){
     std::ifstream stream;
     Util::getStream(path,stream);
     string line;
-    string VmData;
     string name="VmData:";
+    float VmSize;
     while(getline(stream,line)){
-        std::istringstream fline(line);
-        string id;
-        fline>>id;
-        if (id.compare(0,name.size(),name)==0){
-            fline>>VmData;
-            stream.close();
-            float result=(stof(VmData)/float(1024));
-            return to_string(result);
+        if (line.compare(0,name.size(),name)==0){
+            istringstream fline(line);
+            istream_iterator<string> start(fline),end;
+            vector<string> values(start,end);
+            VmSize=(stof(values[1])/float(1024));
+            break;
         }
     }
+    stream.close();
+    return to_string(VmSize);
 }
 
 
@@ -121,13 +121,13 @@ long int ProcessParser::getSysUpTime(){
     string path=Path::basePath()+Path::upTimePath();
     std::ifstream stream;
     Util::getStream(path,stream);
-    long int uptime;
     string line;
     getline(stream,line);
     std::istringstream fline(line);
-    fline>>uptime;
+    std::istream_iterator<string> start(fline), end;
+    std::vector<string> values(start,end);
     stream.close();
-    return uptime;
+    return stoi(values[0]);
 }
 
 //uid from /proc/pid/status
@@ -136,15 +136,15 @@ string ProcessParser::getProcUser(string pid){
     std::ifstream stream;
     Util::getStream(path,stream);
     string line;
-    string uid;
-    bool uidFound=false;
-    while(getline(stream,line) && !uidFound){
-        std::istringstream fline(line);
-        string id;
-        fline>>id;
-        if (id=="Uid:"){
-            fline>>uid;
-            uidFound=true;
+    string uid="";
+    string name="Uid";
+    while(getline(stream,line)){
+        if (line.compare(0,name.size(),name)==0){
+            std::istringstream fline(line);
+            std::istream_iterator<string> start(fline), end;
+            std::vector<string> values(start,end);
+            uid=values[1];
+            break;
         }
     }
     //username from uid can be obtained from /etc/passwd
@@ -156,6 +156,7 @@ string ProcessParser::getProcUser(string pid){
             return line.substr(0,line.find(":"));
     }
     stream.close();
+    return "";
 }
 
 //Folders name with integer values in /proc/
@@ -184,16 +185,18 @@ int ProcessParser::getNumberOfCores(){
     string path=Path::basePath()+"cpuinfo";
     ifstream stream;
     Util::getStream(path,stream);
+    int result=0;
     while(getline(stream,line)){
         if (line.compare(0,matchText.size(),matchText)==0){
             istringstream fline(line);
             istream_iterator<string> start(fline),end;
             vector<string> values(start,end);
-            stream.close();
-            return stoi(values[3]);
-
+            result=stoi(values[3]);
+            break;
         }
     }
+    stream.close();
+    return result;
 
 }
 
@@ -204,13 +207,14 @@ vector<string> ProcessParser::getSysCpuPercent(string coreNumber){
     string line;
     string core="cpu"+coreNumber;
     while(getline(stream,line)){
-        std::istringstream fline(line);
-        std::istream_iterator<string> start(fline), end;
-        std::vector<string> values(start,end);
-        if (values[0]==core)
-            stream.close();
+        if (line.compare(0,core.size(),core)==0){
+            istringstream fline(line);
+            istream_iterator<string> start(fline),end;
+            vector<string> values(start,end);
             return values;
+        }
     }
+    return (vector<string>());
 }
 
 
